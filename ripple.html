@@ -14,7 +14,7 @@
             position: absolute;
             border-radius: 50%;
             pointer-events: none;
-            opacity: 0.2; /* Set the opacity of the ripples */
+            opacity: 0.1; /* Set the opacity of the ripples */
             animation: ripple-animation 1s forwards;
         }
         @keyframes ripple-animation {
@@ -54,41 +54,49 @@
 
         // Function to generate a ripple
         function createRipple(x, y) {
-    const ripple = document.createElement('div');
-    ripple.classList.add('ripple');
+            const ripple = { x, y, radius: 0, color: rippleColor, layers: 5 };
+            ripples.push(ripple);
+            push(ref(database, 'ripples'), ripple); // Save ripple to Firebase
+        }
 
-    // Random size between 20px and 70px
-    const size = Math.random() * 50 + 20; 
-    ripple.style.width = ripple.style.height = `${size}px`; 
+        // Listen for new ripples from Firebase
+        onChildAdded(ref(database, 'ripples'), (snapshot) => {
+            const ripple = snapshot.val();
+            ripples.push(ripple);
+        });
 
-    // Generate a random color
-    const randomColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-    ripple.style.backgroundColor = randomColor; // Use random color
-    ripple.style.left = `${x}px`;
-    ripple.style.top = `${y}px`;
-    document.body.appendChild(ripple);
+        function updateRipples() {
+            ripples.forEach(ripple => {
+                ripple.radius += 2;
+            });
+            ripples = ripples.filter(ripple => ripple.radius < maxRippleSize);
+        }
 
-    console.log("Ripple created at:", x, y, "with color:", randomColor); // Log ripple creation with color
+        function drawRipples() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ripples.forEach(ripple => {
+                for (let i = 0; i < ripple.layers; i++) {
+                    ctx.beginPath();
+                    ctx.arc(ripple.x, ripple.y, ripple.radius + i * 10, 0, Math.PI * 2);
+                    ctx.strokeStyle = ripple.color;
+                    ctx.lineWidth = 2 - (i * 0.3);
+                    ctx.stroke();
+                    ctx.globalAlpha = 0.1; // Set opacity for layers to 0.1
+                    ctx.fillStyle = ripple.color;
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1; // Reset alpha for the next ripple
+            });
+        }
 
-    // Remove the ripple after animation ends
-    ripple.addEventListener('animationend', () => {
-        ripple.remove();
-    });
-}
+        function animate() {
+            updateRipples();
+            drawRipples();
+            requestAnimationFrame(animate);
+        }
 
-
-        // Event listener for mouse clicks
-        document.addEventListener('click', (e) => {
-        console.log("Ripple clicked at:", e.clientX, e.clientY); // Log click position
-        createRipple(e.clientX, e.clientY);
-        });        
-
-
-        // Optional: Listen for data updates from Firebase (not necessary for this example)
-        const rippleRef = ref(db, 'ripples/');
-        onValue(rippleRef, (snapshot) => {
-            const data = snapshot.val();
-            // Handle incoming data (if needed)
+        canvas.addEventListener('click', (event) => {
+            createRipple(event.clientX, event.clientY);
         });
     </script>
 </body>
