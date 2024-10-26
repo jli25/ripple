@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Ripple Effect</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.2; /* Set the opacity of the ripples */
+            animation: ripple-animation 1s forwards;
+        }
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0; /* Fade out the ripple */
+            }
+        }
+    </style>
+</head>
+<body>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-wOgOdJ9wVmV1XIx20hWNsLWZ93b_2fA",
+            authDomain: "pond-6cb98.firebaseapp.com",
+            databaseURL: "https://pond-6cb98-default-rtdb.firebaseio.com",
+            projectId: "pond-6cb98",
+            storageBucket: "pond-6cb98.appspot.com",
+            messagingSenderId: "461772157271",
+            appId: "1:461772157271:web:7d237438503579b8818e12",
+            measurementId: "G-G2D6VKVSL1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedNumber = urlParams.get('number');
+        const rippleColor = urlParams.get('color');
+
+        // Function to generate a ripple
+        function createRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple');
+            ripple.style.width = ripple.style.height = `${Math.random() * 50 + 20}px`; // Random size between 20px and 70px
+            ripple.style.backgroundColor = rippleColor; // Use the selected color
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            document.body.appendChild(ripple);
+
+            // Remove the ripple after animation ends
+            ripple.addEventListener('animationend', () => {
+                ripple.remove();
+            });
+        }
+
+        // Event listener for mouse clicks
+        document.addEventListener('click', (e) => {
+            createRipple(e.clientX, e.clientY);
+        });
+
+        // Optional: Listen for data updates from Firebase (not necessary for this example)
+        const rippleRef = ref(db, 'ripples/');
+        onValue(rippleRef, (snapshot) => {
+            const data = snapshot.val();
+            // Handle incoming data (if needed)
+        });
+    </script>
+</body>
+</html>
