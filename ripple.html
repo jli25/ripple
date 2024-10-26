@@ -70,8 +70,10 @@
 
         // Event listener for mouse clicks
         document.addEventListener('click', (e) => {
-            createRipple(e.clientX, e.clientY);
-        });
+        console.log("Ripple clicked at:", e.clientX, e.clientY); // Log click position
+        createRipple(e.clientX, e.clientY);
+        });        
+
 
         // Optional: Listen for data updates from Firebase (not necessary for this example)
         const rippleRef = ref(db, 'ripples/');
