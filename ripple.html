@@ -54,21 +54,28 @@
 
         // Function to generate a ripple
         function createRipple(x, y) {
-        const ripple = document.createElement('div');
-        ripple.classList.add('ripple');
-        ripple.style.width = ripple.style.height = `${Math.random() * 50 + 20}px`; // Random size
-        ripple.style.backgroundColor = rippleColor; // Use the selected color
-        ripple.style.left = `${x}px`;
-        ripple.style.top = `${y}px`;
-        document.body.appendChild(ripple);
-        
-        console.log("Ripple created at:", x, y); // Log ripple creation
+    const ripple = document.createElement('div');
+    ripple.classList.add('ripple');
 
-        // Remove the ripple after animation ends
-        ripple.addEventListener('animationend', () => {
-            ripple.remove();
-        });
-    }
+    // Random size between 20px and 70px
+    const size = Math.random() * 50 + 20; 
+    ripple.style.width = ripple.style.height = `${size}px`; 
+
+    // Generate a random color
+    const randomColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    ripple.style.backgroundColor = randomColor; // Use random color
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    document.body.appendChild(ripple);
+
+    console.log("Ripple created at:", x, y, "with color:", randomColor); // Log ripple creation with color
+
+    // Remove the ripple after animation ends
+    ripple.addEventListener('animationend', () => {
+        ripple.remove();
+    });
+}
+
 
         // Event listener for mouse clicks
         document.addEventListener('click', (e) => {
