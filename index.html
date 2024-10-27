@@ -170,7 +170,7 @@
             label.textContent = selectedNumber; 
 
             // Update circle color based on the gradient from left (blue) to right (yellow)
-            const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9);
+            const colorHex = interpolateColor('#3d33ff', '#e01f6d', (selectedNumber - 1) / 9);
             circle.style.backgroundColor = colorHex; 
             submitButton.style.backgroundColor = colorHex; 
         }
@@ -188,7 +188,7 @@
         });
 
         submitButton.addEventListener('click', function() {
-            const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9);
+            const colorHex = interpolateColor('#3d33ff', '#e01f6d', (selectedNumber - 1) / 9);
             const encodedColor = encodeURIComponent(colorHex); 
             console.log(encodedColor); 
             window.location.href = `ripple.html?number=${selectedNumber}&color=${encodedColor}`; 
