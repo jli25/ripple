@@ -74,8 +74,7 @@
                 radius: 0, 
                 color: rippleColor || 'white', 
                 layers: 5, 
-                timestamp: Date.now(),
-                alpha: 1 // Start fully opaque
+                timestamp: Date.now(), // Add timestamp here
             };
             ripples.push(ripple);
             push(ref(database, 'ripples'), ripple);
@@ -84,6 +83,8 @@
         // Listen for new ripples from Firebase
         onChildAdded(ref(database, 'ripples'), (snapshot) => {
             const ripple = snapshot.val();
+            
+            // Only add the ripple if it was created after the page was loaded
             if (ripple.timestamp > loadTime) {
                 ripples.push(ripple);
             }
@@ -92,7 +93,7 @@
         function updateRipples() {
             ripples.forEach(ripple => {
                 ripple.radius += 2; // Increase ripple radius
-                ripple.alpha *= 0.95; // Fade effect
+                ripple.alpha = ripple.alpha !== undefined ? ripple.alpha * 0.95 : 1; // Fade effect
             });
             ripples = ripples.filter(ripple => ripple.radius < maxRippleSize && ripple.alpha > 0); // Keep only visible ripples
         }
@@ -107,12 +108,7 @@
                     ctx.strokeStyle = ripple.color;
                     ctx.lineWidth = 2 - (i * 0.3);
                     ctx.stroke();
-
-                    // Create a gradient fill that fades to transparent
-                    const gradient = ctx.createRadialGradient(ripple.x, ripple.y, ripple.radius, ripple.x, ripple.y, ripple.radius + 10);
-                    gradient.addColorStop(0, ripple.color);
-                    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)'); // Fade to transparent
-                    ctx.fillStyle = gradient;
+                    ctx.fillStyle = ripple.color;
                     ctx.fill();
                 }
             });
