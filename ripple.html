@@ -15,6 +15,17 @@
         }
         canvas {
             display: block;
+            position: relative;
+            z-index: 2; /* Ensure the canvas is above the overlay */
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Black with 70% opacity */
+            z-index: 1; /* Ensure the overlay is below the canvas */
         }
         .averageLabel {
             position: absolute;
@@ -53,7 +64,7 @@
         let ripples = [];
         let averageValue = 0;
         const maxRippleSize = Math.min(canvas.width, canvas.height) * 0.45;
-        
+
         // Function to get query parameters
         function getQueryParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -69,6 +80,9 @@
             ripples.push({ number: selectedNumber });
             updateAverage();
         }
+
+        // Declare a variable to track the load time
+        let loadTime = Date.now();
 
         function createRipple(x, y) {
             const ripple = { 
@@ -88,8 +102,12 @@
         // Listen for new ripples from Firebase
         onChildAdded(ref(database, 'ripples'), (snapshot) => {
             const ripple = snapshot.val();
-            ripples.push(ripple);
-            updateAverage();
+            
+            // Only add the ripple if it was created after the page was loaded
+            if (ripple.timestamp > loadTime) {
+                ripples.push(ripple);
+                updateAverage();
+            }
         });
 
         function updateAverage() {
@@ -159,6 +177,7 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    <div class="overlay"></div> <!-- Black overlay with 70% opacity -->
     <div class="averageLabel"></div> <!-- Text label for average value -->
 </body>
 </html>
