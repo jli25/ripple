@@ -126,7 +126,7 @@
     <div class="scale" id="scale">
         <div class="box"></div>
         <div class="circle" id="circle" draggable="true">
-            <span class="label" id="label">5</span>
+            <span class="label" id="label">1</span> <!-- Set initial number to 1 -->
         </div>
         <div class="label-text private-label">Private</div>
         <div class="label-text public-label">Public</div>
@@ -146,7 +146,7 @@
         const label = document.getElementById('label');
         const submitButton = document.getElementById('submit');
         
-        let selectedNumber = 5; 
+        let selectedNumber = 1; // Start at 1
 
         function interpolateColor(color1, color2, factor) {
             const result1 = color1.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
@@ -169,13 +169,14 @@
             selectedNumber = Math.ceil(percentage * 10);
             label.textContent = selectedNumber; 
 
-            // Update circle color based on the gradient from left to right
+            // Update circle color based on the gradient from left (blue) to right (yellow)
             const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9);
             circle.style.backgroundColor = colorHex; 
             submitButton.style.backgroundColor = colorHex; 
         }
 
-        circle.style.left = '50%'; 
+        // Initial position for the circle at 1 (left end)
+        circle.style.left = '0%'; 
         label.textContent = selectedNumber; 
 
         circle.addEventListener('mousedown', function() {
