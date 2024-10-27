@@ -8,12 +8,23 @@
         body {
             margin: 0;
             overflow: hidden;
-            background-color: black;
-            color: white; /* Text color */
-            font-family: Arial, sans-serif; /* Font style */
+            background-color: rgba(147, 135, 187, 0.2); /* Background with 20% opacity */
+            color: white;
+            font-family: Arial, sans-serif;
+            position: relative;
         }
         canvas {
             display: block;
+        }
+        .averageLabel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+            z-index: 10;
         }
     </style>
     <script type="module">
@@ -21,14 +32,14 @@
         import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyA-wOgOdJ9wVmV1XIx20hWNsLWZ93b_2fA",
-          authDomain: "pond-6cb98.firebaseapp.com",
-          databaseURL: "https://pond-6cb98-default-rtdb.firebaseio.com",
-          projectId: "pond-6cb98",
-          storageBucket: "pond-6cb98.appspot.com",
-          messagingSenderId: "461772157271",
-          appId: "1:461772157271:web:7d237438503579b8818e12",
-          measurementId: "G-G2D6VKVSL1"
+            apiKey: "AIzaSyA-wOgOdJ9wVmV1XIx20hWNsLWZ93b_2fA",
+            authDomain: "pond-6cb98.firebaseapp.com",
+            databaseURL: "https://pond-6cb98-default-rtdb.firebaseio.com",
+            projectId: "pond-6cb98",
+            storageBucket: "pond-6cb98.appspot.com",
+            messagingSenderId: "461772157271",
+            appId: "1:461772157271:web:7d237438503579b8818e12",
+            measurementId: "G-G2D6VKVSL1"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -40,6 +51,7 @@
         canvas.height = window.innerHeight;
 
         let ripples = [];
+        let averageValue = 0;
         const maxRippleSize = Math.min(canvas.width, canvas.height) * 0.45;
 
         // Function to get query parameters
@@ -49,35 +61,61 @@
         }
 
         // Get the selected number and color from the URL
-        const selectedNumber = getQueryParameter('number');
+        const selectedNumber = parseInt(getQueryParameter('number'));
         const rippleColor = getQueryParameter('color');
-        console.log('Selected number:', selectedNumber);
-        console.log('Ripple color:', rippleColor); // Use this color for the ripples
-
-        // Declare a variable to track the load time
-        let loadTime = Date.now();
         
-        onChildAdded(ref(database, 'ripples'), (snapshot) => {
-            const ripple = snapshot.val();
-            
-            // Only add the ripple if it was created after the page was loaded
-            if (ripple.timestamp > loadTime) {
-                ripples.push(ripple);
-            }
-        });
+        // Add the first ripple value to the average calculation
+        if (selectedNumber) {
+            ripples.push({ number: selectedNumber });
+            updateAverage();
+        }
+
+        // Clear existing ripples on page load
+        window.onload = function() {
+            ripples = []; // Reset the ripples array
+        };
 
         function createRipple(x, y) {
-        const ripple = { 
-            x, 
-            y, 
-            radius: 0, 
-            color: rippleColor || 'white', 
-            layers: 5, 
-            timestamp: Date.now() // Add timestamp here
-        };
-        ripples.push(ripple);
-        push(ref(database, 'ripples'), ripple);
-    }
+            const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5, number: selectedNumber };
+            ripples.push(ripple);
+            push(ref(database, 'ripples'), ripple);
+            updateAverage();
+        }
+
+        // Listen for new ripples from Firebase
+        onChildAdded(ref(database, 'ripples'), (snapshot) => {
+            const ripple = snapshot.val();
+            ripples.push(ripple);
+            updateAverage();
+        });
+
+        function updateAverage() {
+            const recentRipples = ripples.filter(ripple => {
+                const rippleTime = ripple.timestamp || Date.now();
+                return (Date.now() - rippleTime) < 3 * 60 * 1000; // Last 3 minutes
+            });
+            
+            if (recentRipples.length > 0) {
+                const sum = recentRipples.reduce((acc, ripple) => acc + ripple.number, 0);
+                averageValue = sum / recentRipples.length;
+                updateBackgroundColor();
+            }
+        }
+
+        function updateBackgroundColor() {
+            const colorHex = interpolateColor('#3d33ff', '#fff066', (averageValue - 1) / 9);
+            document.body.style.backgroundColor = colorHex;
+            document.querySelector('.averageLabel').textContent = `Average: ${averageValue.toFixed(2)}`;
+        }
+
+        function interpolateColor(color1, color2, factor) {
+            const result1 = color1.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
+            const result2 = color2.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
+            return `#${result1.map((val, index) => {
+                const color = Math.round(val + factor * (result2[index] - val));
+                return color.toString(16).padStart(2, '0');
+            }).join('')}`;
+        }
 
         function updateRipples() {
             ripples.forEach(ripple => {
@@ -95,11 +133,11 @@
                     ctx.strokeStyle = ripple.color;
                     ctx.lineWidth = 2 - (i * 0.3);
                     ctx.stroke();
-                    ctx.globalAlpha = 0.1; // Set opacity for layers to 0.1
+                    ctx.globalAlpha = 0.2;
                     ctx.fillStyle = ripple.color;
                     ctx.fill();
                 }
-                ctx.globalAlpha = 1; // Reset alpha for the next ripple
+                ctx.globalAlpha = 1;
             });
         }
 
@@ -118,5 +156,6 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    <div class="averageLabel"></div> <!-- Text label for average value -->
 </body>
 </html>
