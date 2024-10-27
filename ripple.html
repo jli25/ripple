@@ -63,16 +63,12 @@
         const selectedNumber = getQueryParameter('number');
         const rippleColor = getQueryParameter('color');
         console.log('Selected number:', selectedNumber);
-        console.log('Ripple color:', rippleColor); // Log the color
+        console.log('Ripple color:', rippleColor); // Use this color for the ripples
 
         // Create a color label
         const colorLabel = document.getElementById('colorLabel');
         if (colorLabel) {
-            if (rippleColor) {
-                colorLabel.textContent = `Ripple Color: ${rippleColor}`; // Set the label text
-            } else {
-                colorLabel.textContent = "Ripple Color: Not set";
-            }
+            colorLabel.textContent = `Ripple Color: ${rippleColor || 'not set'}`; // Set the label text
         } else {
             console.error('Color label element not found');
         }
