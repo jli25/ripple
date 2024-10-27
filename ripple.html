@@ -83,6 +83,11 @@
             ripples.push(ripple);
         });
 
+        // Clear existing ripples on page load
+        window.onload = function() {
+            ripples = []; // Reset the ripples array
+        };
+        
         function updateRipples() {
             ripples.forEach(ripple => {
                 ripple.radius += 2;
