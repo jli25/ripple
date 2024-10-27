@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select a Number</title>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400&display=swap" rel="stylesheet"> <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400&display=swap" rel="stylesheet">
     <style>
         body {
             display: flex;
@@ -13,38 +13,38 @@
             justify-content: center;
             height: 100vh;
             background-color: white;
-            font-family: 'Quicksand', sans-serif; /* Set the font to Quicksand */
-            color: #4b5361; /* Set font color */
-            overflow: hidden; /* Prevent scrollbars */
-            position: relative; /* Position for the motion lines */
+            font-family: 'Quicksand', sans-serif;
+            color: #4b5361;
+            overflow: hidden;
+            position: relative;
         }
         .scale {
             position: relative;
-            width: 60%; /* Shortened width */
+            width: 60%;
             height: 50px;
             margin: 20px;
             display: flex;
             align-items: center;
-            justify-content: center; /* Center align */
-            background-color: white; /* White background for the scale */
-            border-radius: 10px; /* Rounded edges for the scale */
-            z-index: 2; /* Ensure scale is above motion lines */
+            justify-content: center;
+            background-color: white;
+            border-radius: 10px;
+            z-index: 2;
         }
         .box {
             position: absolute;
             width: 100%;
-            height: 20px; /* Height of the box */
-            background-color: #bdbdbd; /* Solid color for the indicator */
-            top: 50%; /* Center the box vertically */
-            transform: translateY(-50%); /* Adjust for height */
-            z-index: 1; /* Ensure the box is below the circle */
-            border-radius: 10px; /* Rounded edges for the box */
+            height: 20px;
+            background-color: #bdbdbd;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+            border-radius: 10px;
         }
         .circle {
             position: absolute;
-            width: 45px; /* Increased size to 150% */
-            height: 45px; /* Increased size to 150% */
-            background-color: blue; /* Default color */
+            width: 45px;
+            height: 45px;
+            background-color: blue;
             border-radius: 50%;
             cursor: pointer;
             top: 50%;
@@ -53,16 +53,16 @@
             align-items: center;
             justify-content: center;
             transition: background-color 0.3s;
-            z-index: 2; /* Ensure the circle is above the box */
-            color: white; /* White text color */
-            font-weight: bold; /* Bold text */
+            z-index: 2;
+            color: white;
+            font-weight: bold;
         }
         .label {
-            font-size: 16px; /* Adjusted size for better fit inside circle */
+            font-size: 16px;
         }
         .next-button {
-            width: 60px; /* Size of the button */
-            height: 60px; /* Size of the button */
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: none;
             color: white;
@@ -71,42 +71,42 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            margin-top: 20px; /* Added margin to space it from the scale */
+            margin-top: 20px;
             transition: background-color 0.3s;
-            position: relative; /* Adjust positioning */
+            position: relative;
         }
         .arrow {
             width: 0; 
             height: 0; 
             border-top: 12px solid transparent;
             border-bottom: 12px solid transparent;
-            border-left: 20px solid white; /* Arrow pointing right */
+            border-left: 20px solid white; 
         }
         .label-text {
             position: absolute;
-            font-weight: bold; /* Bold text */
-            font-size: 14px; /* Font size */
+            font-weight: bold;
+            font-size: 14px;
         }
         .private-label {
-            left: 0; /* Align to the left end of the box */
-            bottom: -20px; /* Space below the scale */
+            left: 0; 
+            bottom: -20px; 
         }
         .public-label {
-            right: 0; /* Align to the right end of the box */
-            bottom: -20px; /* Space below the scale */
+            right: 0; 
+            bottom: -20px; 
         }
         .text-message {
-            margin-top: 20px; /* Space above the text */
-            font-size: 14px; /* Font size for the message */
-            color: #4b5361; /* Font color for the message */
-            text-align: center; /* Center align the text */
+            margin-top: 20px; 
+            font-size: 14px; 
+            color: #4b5361; 
+            text-align: center; 
         }
         .ripple {
             position: absolute;
             border-radius: 50%;
-            border: 2px solid; /* Border for the concentric effect */
+            border: 2px solid; 
             pointer-events: none;
-            opacity: 0.5; /* Adjust opacity for better visibility */
+            opacity: 0.5; 
             animation: ripple-animation 2s forwards;
         }
         @keyframes ripple-animation {
@@ -114,8 +114,8 @@
                 transform: scale(0);
             }
             100% {
-                transform: scale(1.5); /* Increase the scale for ripple effect */
-                opacity: 0; /* Fade out */
+                transform: scale(1.5); 
+                opacity: 0; 
             }
         }
     </style>
@@ -124,9 +124,9 @@
 
     <h1>Select a Number from 1 to 10</h1>
     <div class="scale" id="scale">
-        <div class="box"></div> <!-- Box for the scale -->
+        <div class="box"></div>
         <div class="circle" id="circle" draggable="true">
-            <span class="label" id="label">5</span> <!-- Number inside the circle -->
+            <span class="label" id="label">5</span>
         </div>
         <div class="label-text private-label">Private</div>
         <div class="label-text public-label">Public</div>
@@ -146,9 +146,8 @@
         const label = document.getElementById('label');
         const submitButton = document.getElementById('submit');
         
-        let selectedNumber = 5; // Start at 5
+        let selectedNumber = 5; 
 
-        // Function to interpolate between two colors
         function interpolateColor(color1, color2, factor) {
             const result = color1.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
             const result2 = color2.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
@@ -158,66 +157,58 @@
             }).join('')}`;
         }
 
-        // Function to update the position of the circle and selected number
         function updateCirclePosition(event) {
             const scaleWidth = scale.clientWidth;
             const offsetX = event.clientX - scale.getBoundingClientRect().left;
-            const percentage = Math.max(0, Math.min(offsetX / scaleWidth, 1)); // Clamp between 0 and 1
-            const position = percentage * 100; // Convert to percentage
+            const percentage = Math.max(0, Math.min(offsetX / scaleWidth, 1)); 
+            const position = percentage * 100; 
 
-            // Prevent the circle from going off the right end of the scale
             const adjustedPosition = Math.min(position, 100 - (circle.clientWidth / scaleWidth * 100));
             circle.style.left = `${adjustedPosition}%`;
 
-            // Update selected number based on position
             selectedNumber = Math.ceil(percentage * 10);
-            label.textContent = selectedNumber; // Update the label with the selected number
-            
-            // Update circle color based on the gradient
-            const colorHex = interpolateColor('#3d33ff', '#e01f6d', (selectedNumber - 1) / 9);
-            circle.style.backgroundColor = colorHex; // Change color based on selection
-            submitButton.style.backgroundColor = colorHex; // Change button color
+            label.textContent = selectedNumber; 
+
+            // Update circle color based on the gradient from left to right
+            const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9); // Updated to use #fff066
+            circle.style.backgroundColor = colorHex; 
+            submitButton.style.backgroundColor = colorHex; 
         }
 
-        // Initial position for the circle at 5
-        circle.style.left = '50%'; // Center at 50%
-        label.textContent = selectedNumber; // Set initial label
+        circle.style.left = '50%'; 
+        label.textContent = selectedNumber; 
 
-        // Event listener for dragging the circle
         circle.addEventListener('mousedown', function() {
-            const onMouseMove = updateCirclePosition; // Create a reference to the function
+            const onMouseMove = updateCirclePosition; 
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', function() {
                 document.removeEventListener('mousemove', onMouseMove);
-            }, { once: true }); // Remove the mousemove event on mouse up
+            }, { once: true });
         });
 
         submitButton.addEventListener('click', function() {
-            const colorHex = interpolateColor('#3d33ff', '#e01f6d', (selectedNumber - 1) / 9);
-            const encodedColor = encodeURIComponent(colorHex); // Encode the color
-            console.log(encodedColor); // Debugging: Check the encoded color
-            window.location.href = `ripple.html?number=${selectedNumber}&color=${encodedColor}`; // Use encoded color
+            const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9); // Updated here as well
+            const encodedColor = encodeURIComponent(colorHex); 
+            console.log(encodedColor); 
+            window.location.href = `ripple.html?number=${selectedNumber}&color=${encodedColor}`; 
         });
         
-        // Function to create a single ripple effect
         function createRipple() {
             const ripple = document.createElement('div');
             ripple.className = 'ripple';
-            ripple.style.borderColor = `hsl(${Math.random() * 360}, 100%, 50%)`; // Random color
-            const size = Math.random() * 40 + 20; // Random size between 20px and 60px
+            ripple.style.borderColor = `hsl(${Math.random() * 360}, 100%, 50%)`; 
+            const size = Math.random() * 40 + 20; 
             ripple.style.width = `${size}px`;
             ripple.style.height = `${size}px`;
-            ripple.style.left = `${Math.random() * 100}vw`; // Random horizontal position
-            ripple.style.top = `${Math.random() * 100}vh`; // Random vertical position
+            ripple.style.left = `${Math.random() * 100}vw`; 
+            ripple.style.top = `${Math.random() * 100}vh`; 
             document.body.appendChild(ripple);
-            // Remove the ripple after animation ends
             ripple.addEventListener('animationend', () => {
                 ripple.remove();
             });
         }
 
-        // Create ripple effects at intervals
-        setInterval(createRipple, 1000); // Create a new ripple every second
+        setInterval(createRipple, 1000);
     </script>
 </body>
 </html>
