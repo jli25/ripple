@@ -149,9 +149,9 @@
         let selectedNumber = 5; 
 
         function interpolateColor(color1, color2, factor) {
-            const result = color1.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
+            const result1 = color1.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
             const result2 = color2.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
-            return `#${result.map((val, index) => {
+            return `#${result1.map((val, index) => {
                 const color = Math.round(val + factor * (result2[index] - val));
                 return color.toString(16).padStart(2, '0');
             }).join('')}`;
@@ -170,7 +170,7 @@
             label.textContent = selectedNumber; 
 
             // Update circle color based on the gradient from left to right
-            const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9); // Updated to use #fff066
+            const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9);
             circle.style.backgroundColor = colorHex; 
             submitButton.style.backgroundColor = colorHex; 
         }
@@ -187,7 +187,7 @@
         });
 
         submitButton.addEventListener('click', function() {
-            const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9); // Updated here as well
+            const colorHex = interpolateColor('#3d33ff', '#fff066', (selectedNumber - 1) / 9);
             const encodedColor = encodeURIComponent(colorHex); 
             console.log(encodedColor); 
             window.location.href = `ripple.html?number=${selectedNumber}&color=${encodedColor}`; 
