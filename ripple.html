@@ -40,7 +40,7 @@
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-wOgOdJ9wVmV1XIx20hWNsLWZ93b_2fA",
@@ -75,6 +75,15 @@
         const selectedNumber = parseInt(getQueryParameter('number'));
         const rippleColor = getQueryParameter('color');
 
+        // Add the first ripple value to the average calculation
+        if (selectedNumber) {
+            ripples.push({ number: selectedNumber });
+            updateAverage();
+        }
+
+        // Declare a variable to track the load time
+        let loadTime = Date.now();
+
         function createRipple(x, y) {
             const ripple = { 
                 x, 
@@ -87,16 +96,20 @@
             };
             ripples.push(ripple);
             push(ref(database, 'ripples'), ripple);
+            updateAverage();
         }
 
         // Listen for new ripples from Firebase
         onChildAdded(ref(database, 'ripples'), (snapshot) => {
             const ripple = snapshot.val();
-            ripples.push(ripple);
-            updateAverage();
+            
+            // Only add the ripple if it was created after the page was loaded
+            if (ripple.timestamp > loadTime) {
+                ripples.push(ripple);
+                updateAverage();
+            }
         });
 
-        // Calculate the average based on all ripples
         function updateAverage() {
             const recentRipples = ripples.filter(ripple => {
                 const rippleTime = ripple.timestamp || Date.now();
