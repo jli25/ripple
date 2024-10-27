@@ -62,7 +62,7 @@
 
         // Get the selected number and color from the URL
         const selectedNumber = parseInt(getQueryParameter('number'));
-        const rippleColor = getQueryParameter('color');
+        const rippleColor = getQueryParameter('color') || '#FFFFFF'; // Default to white
 
         // Declare a variable to track the load time
         let loadTime = Date.now();
@@ -72,7 +72,7 @@
                 x, 
                 y, 
                 radius: 0, 
-                color: rippleColor || 'white', 
+                color: rippleColor, 
                 layers: 5, 
                 timestamp: Date.now(),
                 alpha: 1 // Start fully opaque
@@ -92,30 +92,44 @@
         });
 
         function updateAverage() {
+            if (ripples.length === 0) return;
+
             const recentRipples = ripples.filter(ripple => {
                 const rippleTime = ripple.timestamp || Date.now();
                 return (Date.now() - rippleTime) < 3 * 60 * 1000; // Last 3 minutes
             });
-            
-            if (recentRipples.length > 0) {
-                const sum = recentRipples.reduce((acc, ripple) => acc + (selectedNumber || 0), 0);
-                const averageValue = sum / recentRipples.length;
-                updateBackgroundColor(averageValue);
+
+            const colorSum = recentRipples.reduce((acc, ripple) => {
+                const rgb = hexToRgb(ripple.color);
+                return {
+                    r: acc.r + rgb.r,
+                    g: acc.g + rgb.g,
+                    b: acc.b + rgb.b,
+                    count: acc.count + 1
+                };
+            }, { r: 0, g: 0, b: 0, count: 0 });
+
+            if (colorSum.count > 0) {
+                const averageColor = {
+                    r: Math.floor(colorSum.r / colorSum.count),
+                    g: Math.floor(colorSum.g / colorSum.count),
+                    b: Math.floor(colorSum.b / colorSum.count),
+                };
+                updateBackgroundColor(averageColor);
             }
         }
 
-        function updateBackgroundColor(averageValue) {
-            const colorHex = interpolateColor('#3d33ff', '#e01f6d', (averageValue - 1) / 9);
-            document.body.style.backgroundColor = colorHex;
+        function hexToRgb(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            return {
+                r: (bigint >> 16) & 255,
+                g: (bigint >> 8) & 255,
+                b: bigint & 255,
+            };
         }
 
-        function interpolateColor(color1, color2, factor) {
-            const result1 = color1.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
-            const result2 = color2.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
-            return `#${result1.map((val, index) => {
-                const color = Math.round(val + factor * (result2[index] - val));
-                return color.toString(16).padStart(2, '0');
-            }).join('')}`;
+        function updateBackgroundColor({ r, g, b }) {
+            document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
         }
 
         function updateRipples() {
