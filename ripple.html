@@ -54,18 +54,30 @@
         console.log('Selected number:', selectedNumber);
         console.log('Ripple color:', rippleColor); // Use this color for the ripples
 
-        function createRipple(x, y) {
-            const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5 };
-            ripples.push(ripple);
-            push(ref(database, 'ripples'), ripple);
-        }
-
-        // Listen for new ripples from Firebase
+        // Declare a variable to track the load time
+        let loadTime = Date.now();
+        
         onChildAdded(ref(database, 'ripples'), (snapshot) => {
             const ripple = snapshot.val();
-            // Only add the ripple if it was created after this page was loaded
-            ripples.push(ripple);
+            
+            // Only add the ripple if it was created after the page was loaded
+            if (ripple.timestamp > loadTime) {
+                ripples.push(ripple);
+            }
         });
+
+        function createRipple(x, y) {
+        const ripple = { 
+            x, 
+            y, 
+            radius: 0, 
+            color: rippleColor || 'white', 
+            layers: 5, 
+            timestamp: Date.now() // Add timestamp here
+        };
+        ripples.push(ripple);
+        push(ref(database, 'ripples'), ripple);
+    }
 
         function updateRipples() {
             ripples.forEach(ripple => {
