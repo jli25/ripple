@@ -74,26 +74,54 @@
                 radius: 0, 
                 color: rippleColor || 'white', 
                 layers: 5, 
-                timestamp: Date.now(), // Add timestamp here
+                timestamp: Date.now(),
+                alpha: 1 // Start fully opaque
             };
             ripples.push(ripple);
             push(ref(database, 'ripples'), ripple);
+            updateAverage(); // Update average when a new ripple is created
         }
 
         // Listen for new ripples from Firebase
         onChildAdded(ref(database, 'ripples'), (snapshot) => {
             const ripple = snapshot.val();
-            
-            // Only add the ripple if it was created after the page was loaded
             if (ripple.timestamp > loadTime) {
                 ripples.push(ripple);
+                updateAverage(); // Update average for new ripples
             }
         });
+
+        function updateAverage() {
+            const recentRipples = ripples.filter(ripple => {
+                const rippleTime = ripple.timestamp || Date.now();
+                return (Date.now() - rippleTime) < 3 * 60 * 1000; // Last 3 minutes
+            });
+            
+            if (recentRipples.length > 0) {
+                const sum = recentRipples.reduce((acc, ripple) => acc + (selectedNumber || 0), 0);
+                const averageValue = sum / recentRipples.length;
+                updateBackgroundColor(averageValue);
+            }
+        }
+
+        function updateBackgroundColor(averageValue) {
+            const colorHex = interpolateColor('#3d33ff', '#e01f6d', (averageValue - 1) / 9);
+            document.body.style.backgroundColor = colorHex;
+        }
+
+        function interpolateColor(color1, color2, factor) {
+            const result1 = color1.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
+            const result2 = color2.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
+            return `#${result1.map((val, index) => {
+                const color = Math.round(val + factor * (result2[index] - val));
+                return color.toString(16).padStart(2, '0');
+            }).join('')}`;
+        }
 
         function updateRipples() {
             ripples.forEach(ripple => {
                 ripple.radius += 2; // Increase ripple radius
-                ripple.alpha = ripple.alpha !== undefined ? ripple.alpha * 0.95 : 1; // Fade effect
+                ripple.alpha *= 0.95; // Fade effect
             });
             ripples = ripples.filter(ripple => ripple.radius < maxRippleSize && ripple.alpha > 0); // Keep only visible ripples
         }
@@ -108,7 +136,12 @@
                     ctx.strokeStyle = ripple.color;
                     ctx.lineWidth = 2 - (i * 0.3);
                     ctx.stroke();
-                    ctx.fillStyle = ripple.color;
+
+                    // Create a gradient fill that fades to transparent
+                    const gradient = ctx.createRadialGradient(ripple.x, ripple.y, ripple.radius, ripple.x, ripple.y, ripple.radius + 10);
+                    gradient.addColorStop(0, ripple.color);
+                    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)'); // Fade to transparent
+                    ctx.fillStyle = gradient;
                     ctx.fill();
                 }
             });
