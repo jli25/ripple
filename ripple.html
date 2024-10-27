@@ -27,16 +27,6 @@
             background: rgba(0, 0, 0, 0.7); /* Black with 70% opacity */
             z-index: 1; /* Ensure the overlay is below the canvas */
         }
-        .averageLabel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 18px;
-            z-index: 10;
-        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -62,7 +52,6 @@
         canvas.height = window.innerHeight;
 
         let ripples = [];
-        let averageValue = 0;
         const maxRippleSize = Math.min(canvas.width, canvas.height) * 0.45;
 
         // Function to get query parameters
@@ -75,12 +64,6 @@
         const selectedNumber = parseInt(getQueryParameter('number'));
         const rippleColor = getQueryParameter('color');
 
-        // Add the first ripple value to the average calculation
-        if (selectedNumber) {
-            ripples.push({ number: selectedNumber });
-            updateAverage();
-        }
-
         // Declare a variable to track the load time
         let loadTime = Date.now();
 
@@ -92,11 +75,9 @@
                 color: rippleColor || 'white', 
                 layers: 5, 
                 timestamp: Date.now(), // Add timestamp here
-                number: selectedNumber 
             };
             ripples.push(ripple);
             push(ref(database, 'ripples'), ripple);
-            updateAverage();
         }
 
         // Listen for new ripples from Firebase
@@ -106,60 +87,32 @@
             // Only add the ripple if it was created after the page was loaded
             if (ripple.timestamp > loadTime) {
                 ripples.push(ripple);
-                updateAverage();
             }
         });
 
-        function updateAverage() {
-            const recentRipples = ripples.filter(ripple => {
-                const rippleTime = ripple.timestamp || Date.now();
-                return (Date.now() - rippleTime) < 3 * 60 * 1000; // Last 3 minutes
-            });
-            
-            if (recentRipples.length > 0) {
-                const sum = recentRipples.reduce((acc, ripple) => acc + (ripple.number || 0), 0);
-                averageValue = sum / recentRipples.length;
-                updateBackgroundColor();
-            }
-        }
-
-        function updateBackgroundColor() {
-            const colorHex = interpolateColor('#3d33ff', '#e01f6d', (averageValue - 1) / 9);
-            document.body.style.backgroundColor = colorHex;
-            document.querySelector('.averageLabel').textContent = `Average: ${averageValue.toFixed(2)}`;
-        }
-
-        function interpolateColor(color1, color2, factor) {
-            const result1 = color1.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
-            const result2 = color2.slice(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
-            return `#${result1.map((val, index) => {
-                const color = Math.round(val + factor * (result2[index] - val));
-                return color.toString(16).padStart(2, '0');
-            }).join('')}`;
-        }
-
         function updateRipples() {
             ripples.forEach(ripple => {
-                ripple.radius += 2;
+                ripple.radius += 2; // Increase ripple radius
+                ripple.alpha = ripple.alpha !== undefined ? ripple.alpha * 0.95 : 1; // Fade effect
             });
-            ripples = ripples.filter(ripple => ripple.radius < maxRippleSize);
+            ripples = ripples.filter(ripple => ripple.radius < maxRippleSize && ripple.alpha > 0); // Keep only visible ripples
         }
 
         function drawRipples() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ripples.forEach(ripple => {
+                ctx.globalAlpha = ripple.alpha; // Set ripple transparency
                 for (let i = 0; i < ripple.layers; i++) {
                     ctx.beginPath();
                     ctx.arc(ripple.x, ripple.y, ripple.radius + i * 10, 0, Math.PI * 2);
                     ctx.strokeStyle = ripple.color;
                     ctx.lineWidth = 2 - (i * 0.3);
                     ctx.stroke();
-                    ctx.globalAlpha = 0.2;
                     ctx.fillStyle = ripple.color;
                     ctx.fill();
                 }
-                ctx.globalAlpha = 1; // Reset alpha for the next ripple
             });
+            ctx.globalAlpha = 1; // Reset alpha for the next draw
         }
 
         function animate() {
@@ -178,6 +131,5 @@
 <body>
     <canvas id="canvas"></canvas>
     <div class="overlay"></div> <!-- Black overlay with 70% opacity -->
-    <div class="averageLabel"></div> <!-- Text label for average value -->
 </body>
 </html>
