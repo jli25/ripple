@@ -71,6 +71,11 @@
         document.getElementById('colorLabel').textContent = `Ripple Color: ${rippleColor}`; // Update the label
         }
 
+        // Clear existing ripples on page load
+        window.onload = function() {
+            ripples = []; // Reset the ripples array
+        };
+        
         function createRipple(x, y) {
             const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5 }; // Use the color from the URL or default to white
             ripples.push(ripple);
@@ -82,11 +87,6 @@
             const ripple = snapshot.val();
             ripples.push(ripple);
         });
-
-        // Clear existing ripples on page load
-        window.onload = function() {
-            ripples = []; // Reset the ripples array
-        };
         
         function updateRipples() {
             ripples.forEach(ripple => {
