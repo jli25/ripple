@@ -71,14 +71,6 @@
         document.getElementById('colorLabel').textContent = `Ripple Color: ${rippleColor}`; // Update the label
         }
 
-        // Create a color label
-        const colorLabel = document.getElementById('colorLabel');
-        if (colorLabel) {
-            colorLabel.textContent = `Ripple Color: ${rippleColor || 'not set'}`; // Set the label text
-        } else {
-            console.error('Color label element not found');
-        }
-
         function createRipple(x, y) {
             const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5 }; // Use the color from the URL or default to white
             ripples.push(ripple);
