@@ -66,4 +66,68 @@
         console.log('Ripple color:', rippleColor); // Log the color
 
         // Create a color label
-        const colorL
+        const colorLabel = document.getElementById('colorLabel');
+        if (colorLabel) {
+            if (rippleColor) {
+                colorLabel.textContent = `Ripple Color: ${rippleColor}`; // Set the label text
+            } else {
+                colorLabel.textContent = "Ripple Color: Not set";
+            }
+        } else {
+            console.error('Color label element not found');
+        }
+
+        function createRipple(x, y) {
+            const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5 }; // Use the color from the URL or default to white
+            ripples.push(ripple);
+            push(ref(database, 'ripples'), ripple);
+        }
+
+        // Listen for new ripples from Firebase
+        onChildAdded(ref(database, 'ripples'), (snapshot) => {
+            const ripple = snapshot.val();
+            ripples.push(ripple);
+        });
+
+        function updateRipples() {
+            ripples.forEach(ripple => {
+                ripple.radius += 2;
+            });
+            ripples = ripples.filter(ripple => ripple.radius < maxRippleSize);
+        }
+
+        function drawRipples() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ripples.forEach(ripple => {
+                for (let i = 0; i < ripple.layers; i++) {
+                    ctx.beginPath();
+                    ctx.arc(ripple.x, ripple.y, ripple.radius + i * 10, 0, Math.PI * 2);
+                    ctx.strokeStyle = ripple.color;
+                    ctx.lineWidth = 2 - (i * 0.3);
+                    ctx.stroke();
+                    ctx.globalAlpha = 0.2; // Set opacity for layers to 0.2
+                    ctx.fillStyle = ripple.color;
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1; // Reset alpha for the next ripple
+            });
+        }
+
+        function animate() {
+            updateRipples();
+            drawRipples();
+            requestAnimationFrame(animate);
+        }
+
+        canvas.addEventListener('click', (event) => {
+            createRipple(event.clientX, event.clientY);
+        });
+
+        animate();
+    </script>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="colorLabel"></div> <!-- Text label for color -->
+</body>
+</html>
