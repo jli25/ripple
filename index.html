@@ -192,14 +192,13 @@
             }, { once: true }); // Remove the mousemove event on mouse up
         });
 
-        // Button click to navigate to the ripple effect site
         submitButton.addEventListener('click', function() {
             const colorHex = interpolateColor('#3d33ff', '#e01f6d', (selectedNumber - 1) / 9);
             const encodedColor = encodeURIComponent(colorHex); // Encode the color
+            console.log(encodedColor); // Debugging: Check the encoded color
             window.location.href = `ripple.html?number=${selectedNumber}&color=${encodedColor}`; // Use encoded color
         });
-
-
+        
         // Function to create a single ripple effect
         function createRipple() {
             const ripple = document.createElement('div');
