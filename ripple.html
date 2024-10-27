@@ -65,13 +65,10 @@
         console.log('Selected number:', selectedNumber);
         console.log('Ripple color:', rippleColor); // Use this color for the ripples
 
-        if (!rippleColor) {
-        console.error('Ripple color not set in URL');
-        }
-
         // Clear existing ripples on page load
         window.onload = function() {
             ripples = []; // Reset the ripples array
+            document.getElementById('colorLabel').innerText = `Ripple Color: ${rippleColor || 'not set'}`;
         };
         
         function createRipple(x, y) {
@@ -83,7 +80,10 @@
         // Listen for new ripples from Firebase
         onChildAdded(ref(database, 'ripples'), (snapshot) => {
             const ripple = snapshot.val();
-            ripples.push(ripple);
+            // Only push new ripples to the array
+            if (!ripples.find(r => r.x === ripple.x && r.y === ripple.y)) {
+                ripples.push(ripple);
+            }
         });
         
         function updateRipples() {
