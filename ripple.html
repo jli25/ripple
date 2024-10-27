@@ -65,6 +65,12 @@
         console.log('Selected number:', selectedNumber);
         console.log('Ripple color:', rippleColor); // Use this color for the ripples
 
+        if (!rippleColor) {
+        console.error('Ripple color not set in URL');
+        } else {
+        document.getElementById('colorLabel').textContent = `Ripple Color: ${rippleColor}`; // Update the label
+        }
+
         // Create a color label
         const colorLabel = document.getElementById('colorLabel');
         if (colorLabel) {
