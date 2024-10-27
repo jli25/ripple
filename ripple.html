@@ -55,7 +55,7 @@
         function createRipple(x, y) {
             const ripple = { x, y, radius: 0, color: rippleColor, layers: 5 }; // Use the color from the URL
             ripples.push(ripple);
-            push(ref(database, 'ripples'), ripple);
+            push(ref(database, 'ripples'), ripple); // Store ripple in Firebase
         }
 
         // Listen for new ripples from Firebase
@@ -77,7 +77,7 @@
                 for (let i = 0; i < ripple.layers; i++) {
                     ctx.beginPath();
                     ctx.arc(ripple.x, ripple.y, ripple.radius + i * 10, 0, Math.PI * 2);
-                    ctx.strokeStyle = ripple.color;
+                    ctx.strokeStyle = ripple.color; // Use the color from the ripple object
                     ctx.lineWidth = 2 - (i * 0.3);
                     ctx.stroke();
                     ctx.globalAlpha = 0.2; // Set opacity for layers to 0.2
