@@ -39,7 +39,6 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        
         let ripples = [];
         const maxRippleSize = Math.min(canvas.width, canvas.height) * 0.45;
 
@@ -55,11 +54,8 @@
         console.log('Selected number:', selectedNumber);
         console.log('Ripple color:', rippleColor); // Use this color for the ripples
 
-        // Declare a variable to track the load time
-        let loadTime = Date.now();
-        
         function createRipple(x, y) {
-            const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5, timestamp: Date.now() // Add timestamp here };
+            const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5 };
             ripples.push(ripple);
             push(ref(database, 'ripples'), ripple);
         }
@@ -67,10 +63,8 @@
         // Listen for new ripples from Firebase
         onChildAdded(ref(database, 'ripples'), (snapshot) => {
             const ripple = snapshot.val();
-            // Only add the ripple if it was created after the page was loaded
-            if (ripple.timestamp > loadTime) {
-                ripples.push(ripple);
-            }
+            // Only add the ripple if it was created after this page was loaded
+            ripples.push(ripple);
         });
 
         function updateRipples() {
