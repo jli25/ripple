@@ -52,7 +52,7 @@
         canvas.height = window.innerHeight;
 
         let ripples = [];
-        const maxRippleSize = Math.min(canvas.width, canvas.height) * 0.45;
+        const maxRippleSize = Math.min(canvas.width, canvas.height) * 0.54; // 120% of original size
 
         // Function to get query parameters
         function getQueryParameter(name) {
@@ -79,7 +79,6 @@
             };
             ripples.push(ripple);
             push(ref(database, 'ripples'), ripple);
-            updateAverage(); // Update average when a new ripple is created
         }
 
         // Listen for new ripples from Firebase
@@ -87,7 +86,6 @@
             const ripple = snapshot.val();
             if (ripple.timestamp > loadTime) {
                 ripples.push(ripple);
-                updateAverage(); // Update average for new ripples
             }
         });
 
@@ -138,6 +136,7 @@
                 ripple.alpha *= 0.95; // Fade effect
             });
             ripples = ripples.filter(ripple => ripple.radius < maxRippleSize && ripple.alpha > 0); // Keep only visible ripples
+            updateAverage(); // Call average update here
         }
 
         function drawRipples() {
