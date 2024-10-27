@@ -24,6 +24,7 @@
             padding: 10px;
             border-radius: 5px; /* Rounded corners */
             font-size: 18px; /* Font size */
+            z-index: 10; /* Ensure label is on top */
         }
     </style>
     <script type="module">
@@ -66,10 +67,14 @@
 
         // Create a color label
         const colorLabel = document.getElementById('colorLabel');
-        colorLabel.textContent = `Ripple Color: ${rippleColor}`; // Set the label text
+        if (colorLabel) {
+            colorLabel.textContent = `Ripple Color: ${rippleColor || 'not set'}`; // Set the label text
+        } else {
+            console.error('Color label element not found');
+        }
 
         function createRipple(x, y) {
-            const ripple = { x, y, radius: 0, color: rippleColor, layers: 5 }; // Use the color from the URL
+            const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5 }; // Use the color from the URL or default to white
             ripples.push(ripple);
             push(ref(database, 'ripples'), ripple);
         }
