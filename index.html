@@ -195,8 +195,10 @@
         // Button click to navigate to the ripple effect site
         submitButton.addEventListener('click', function() {
             const colorHex = interpolateColor('#3d33ff', '#e01f6d', (selectedNumber - 1) / 9);
-            window.location.href = `ripple.html?number=${selectedNumber}&color=${colorHex}`; // Change this to your ripple effect page
+            const encodedColor = encodeURIComponent(colorHex); // Encode the color
+            window.location.href = `ripple.html?number=${selectedNumber}&color=${encodedColor}`; // Use encoded color
         });
+
 
         // Function to create a single ripple effect
         function createRipple() {
