@@ -53,7 +53,7 @@
         let ripples = [];
         let averageValue = 0;
         const maxRippleSize = Math.min(canvas.width, canvas.height) * 0.45;
-
+        
         // Function to get query parameters
         function getQueryParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -63,20 +63,23 @@
         // Get the selected number and color from the URL
         const selectedNumber = parseInt(getQueryParameter('number'));
         const rippleColor = getQueryParameter('color');
-        
+
         // Add the first ripple value to the average calculation
         if (selectedNumber) {
             ripples.push({ number: selectedNumber });
             updateAverage();
         }
 
-        // Clear existing ripples on page load
-        window.onload = function() {
-            ripples = []; // Reset the ripples array
-        };
-
         function createRipple(x, y) {
-            const ripple = { x, y, radius: 0, color: rippleColor || 'white', layers: 5, number: selectedNumber };
+            const ripple = { 
+                x, 
+                y, 
+                radius: 0, 
+                color: rippleColor || 'white', 
+                layers: 5, 
+                timestamp: Date.now(), // Add timestamp here
+                number: selectedNumber 
+            };
             ripples.push(ripple);
             push(ref(database, 'ripples'), ripple);
             updateAverage();
@@ -96,7 +99,7 @@
             });
             
             if (recentRipples.length > 0) {
-                const sum = recentRipples.reduce((acc, ripple) => acc + ripple.number, 0);
+                const sum = recentRipples.reduce((acc, ripple) => acc + (ripple.number || 0), 0);
                 averageValue = sum / recentRipples.length;
                 updateBackgroundColor();
             }
@@ -137,7 +140,7 @@
                     ctx.fillStyle = ripple.color;
                     ctx.fill();
                 }
-                ctx.globalAlpha = 1;
+                ctx.globalAlpha = 1; // Reset alpha for the next ripple
             });
         }
 
