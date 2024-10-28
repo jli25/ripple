@@ -160,7 +160,7 @@
 
         function updateCirclePosition(event) {
             const scaleWidth = scale.clientWidth;
-            const offsetX = event.clientX - scale.getBoundingClientRect().left;
+            const offsetX = event.clientX ? event.clientX - scale.getBoundingClientRect().left : event.touches[0].clientX - scale.getBoundingClientRect().left;
             const percentage = Math.max(0, Math.min(offsetX / scaleWidth, 1)); 
             const position = percentage * 100; 
 
@@ -180,13 +180,31 @@
         circle.style.left = '0%'; 
         label.textContent = selectedNumber; 
 
-        circle.addEventListener('mousedown', function() {
-            const onMouseMove = updateCirclePosition; 
+        function onMouseMove(event) {
+            updateCirclePosition(event);
+        }
+
+        function onMouseDown() {
             document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', function() {
-                document.removeEventListener('mousemove', onMouseMove);
-            }, { once: true });
-        });
+            document.addEventListener('mouseup', onMouseUp, { once: true });
+        }
+
+        function onTouchMove(event) {
+            updateCirclePosition(event);
+            event.preventDefault(); // Prevent scrolling
+        }
+
+        function onTouchStart() {
+            document.addEventListener('touchmove', onTouchMove);
+            document.addEventListener('touchend', onTouchEnd, { once: true });
+        }
+
+        function onMouseUp() {
+            document.removeEventListener('mousemove', onMouseMove);
+        }
+
+        circle.addEventListener('mousedown', onMouseDown);
+        circle.addEventListener('touchstart', onTouchStart);
 
         submitButton.addEventListener('click', function() {
             const colorHex = interpolateColor('#3d33ff', '#e01f6d', (selectedNumber - 1) / 9);
